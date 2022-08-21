@@ -34,7 +34,8 @@ int main(void) {
 	PORTB |= 1<<PB3;
 	set_square(125);
 	for (;;) {
-		/* wdt_sleep(); */
+		wdt_sleep();
+		blink(3, 100);
 		if (uartBufferIndex > 0) {
 			int line_size = findEOL(uartBuffer, uartBufferIndex);
 			uint8_t buff[UART_BUFFER_SIZE];
