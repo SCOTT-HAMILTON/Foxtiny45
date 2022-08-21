@@ -13,8 +13,6 @@ static volatile uint8_t oldTCCR0B;
 static volatile uint8_t oldTCNT0;
 
 void setupUART() {
-	cli();
-
 	// Save old timer values
 	oldTCCR0B = TCCR0B;
 	oldTCCR0A = TCCR0A;
@@ -30,7 +28,6 @@ void setupUART() {
 	// INPUT_PULLUP on DB0
 	DDRB &= ~(1<<DDB0);
 	PORTB |= 1 << PB0;
-
 	sei();
 }
 
@@ -40,7 +37,6 @@ void clearUARTBuffer() {
 }
 
 void startUARTReceive() {
-	cli();
 	// Save old timer counter
 	oldTCNT0 = TCNT0;
 	// Didn't receive anything yet
@@ -64,7 +60,6 @@ void startUARTReceive() {
   TIFR |= 1 << OCF0A;
 	// Enable output compare interrupt
 	TIMSK |= 1<<OCIE0A;
-
 	sei();
 }
 
@@ -94,7 +89,6 @@ ISR (TIMER0_COMPA_vect) {
 }
 
 ISR (USI_OVF_vect) {
-	cli();
   usiByteReceived = USIBR;
 	if (uartBufferIndex >= UART_BUFFER_SIZE-1) {
 		uartBuffer[0] = USIBR;

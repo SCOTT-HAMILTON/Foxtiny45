@@ -21,7 +21,6 @@ static volatile uint8_t* txUARTData = NULL;
 static volatile unsigned long txUARTDataSize = 0;
 
 void sleep_delay_ms(unsigned long ms) {
-	cli();
 	timer1Mode = COUNT;
 	timer1CounterMs = 0;
 	// Timer/Counter1 CTC with prescaler 64, use OCR1C
@@ -51,7 +50,6 @@ void sleep_delay_ms(unsigned long ms) {
 }
 
 void set_square(uint8_t us) {
-	cli();
 	timer1Mode = SQUARE;
 	timer1SquareLevel = 1;
 	// Timer/Counter1 CTC with prescaler 8, use OCR1C
@@ -118,9 +116,9 @@ void sendUART(uint8_t* data, unsigned int size) {
   TIFR |= 1 << OCF1A;
 
 	PORTB &= ~(1<<PB3);
-	sei();
 	// Enable output compare interrupt
 	TIMSK |= 1<<OCIE1A;
+	sei();
 	// wait for transmission to end
 	for(;;) {
 		if (txUARTByteBit >= 9+TX_STOP_BITS) {
@@ -137,6 +135,7 @@ void sendUART(uint8_t* data, unsigned int size) {
 				TIFR |= 1 << OCF1A;
 				PORTB &= ~(1<<PB3);
 				TIMSK |= 1<<OCIE1A;
+				sei();
 			}
 		}
 	}
