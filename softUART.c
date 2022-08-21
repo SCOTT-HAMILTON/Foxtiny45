@@ -10,9 +10,18 @@
 #include "debugging.h"
 #include "wdtSleep.h"
 
+int findEOL(uint8_t* data, int size) {
+	for (int i = 0; i < size-1; ++i) {
+		if (ReverseByte(data[i]) == 13 && ReverseByte(data[i+1]) == 10) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 int main(void) {
 	setupUART();
-	/* setup_watchdog(8); */
+	setup_watchdog(8);
 	// INPUT_PULLUP on DB1
 	DDRB &= ~(1<<DDB1);
 	PORTB |= 1 << PB1;
@@ -23,43 +32,24 @@ int main(void) {
 	// OUTPUT PB3 HIGH
 	DDRB |= 1<<PB3;
 	PORTB |= 1<<PB3;
+	set_square(125);
 	for (;;) {
-		if (!(PINB >> PB1 & 1)){
-			uint8_t data[] = "HELLO";
-			sendUART(data, 5);
-			blink(2, 200);
-			/* _delay_us(400); */
-		}
 		/* wdt_sleep(); */
-		/* set_square(255); */
-		/* _delay_ms(500); */
-		/* TIMSK &= ~(1<<OCIE1A); */
-		/* PORTB &= ~(1<<PB4); */
-		/* _delay_ms(500); */
-		/* uint8_t expected_msg[] = { */
-		/* 	83, 65, 76, 85, 84, 69, 32, 78, 69, 65, 76 */
-		/* }; */
-		/* int expected_msg_size = sizeof(expected_msg); */
-		/* int bi = uartBufferIndex; */
-		/* if (bi >= expected_msg_size) { */
-		/* 	/1* wait_click(); *1/ */
-		/* 	int ok = 1; */
-		/* 	for (int i = 0; i < expected_msg_size; ++i) { */
-		/* 		if (ReverseByte(uartBuffer[i]) != expected_msg[i]) { */
-		/* 			ok = 0; */
-		/* 			break; */
-		/* 		} */
-		/* 	} */
-		/* 	if (ok) { */
-		/* 		blink(4, 200); */
-		/* 	} else { */
-		/* 		blink(2, 200); */
-		/* 	} */
-		/* 	clearUARTBuffer(); */
-		/* } else { */
-		/* 	blink(bi, 200); */
-		/* 	clearUARTBuffer(); */
-		/* } */
+		if (uartBufferIndex > 0) {
+			int line_size = findEOL(uartBuffer, uartBufferIndex);
+			uint8_t buff[UART_BUFFER_SIZE];
+			for (int i = 0; i < line_size+2; ++i) {
+				buff[i] = ReverseByte(uartBuffer[i]);
+			}
+			buff[line_size+2] = '\0';
+			if (line_size != -1) {
+				sendUART(buff, line_size+2);
+				clearUARTBuffer();
+				blink(2, 200);
+			} else {
+				set_square(uartBufferIndex*20);
+			}
+		}
 	}
 
 	return 0;
