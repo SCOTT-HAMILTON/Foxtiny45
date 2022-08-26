@@ -80,6 +80,7 @@ void blink(uint8_t n, int delay) {
 
 void wait_click() {
 	while (PINB & 1<<PB1);
+	sleep_delay_ms(1000);
 	while (!(PINB & 1<<PB1));
 }
 
@@ -87,6 +88,7 @@ void debugSquareBuffer() {
 	wait_click();
 	int s = uartBufferIndex;
 	if (s > 0) {
+		blink(s, 300);
 		for (int i = 0; i < s; ++i) {
 			set_square(ReverseByte(uartBuffer[i]));
 			wait_click();

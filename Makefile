@@ -5,7 +5,7 @@ CFLAGS=-g -Os -Wall -mcall-prologues -mmcu=$(MCU)
 OBJ2HEX=/usr/bin/avr-objcopy
 AVRDUDE=/usr/local/bin/avrdude
 TARGET=softUART
-SRC = softUART.c rxUART.c utilsUART.c wdtSleep.c debugging.c
+SRC = softUART.c rxUART.c utilsUART.c wdtSleep.c stringUtils.c debugging.c
 all:
 	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
 	$(OBJ2HEX) -R .eeprom -O ihex $(TARGET) $(TARGET).hex
