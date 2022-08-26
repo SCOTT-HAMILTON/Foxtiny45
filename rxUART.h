@@ -1,7 +1,7 @@
 #pragma once
 
 #include <avr/io.h>
-#define UART_BUFFER_SIZE 12
+#define UART_BUFFER_SIZE 25
 
 volatile uint8_t usiReceived;
 volatile uint8_t usiByteReceived;

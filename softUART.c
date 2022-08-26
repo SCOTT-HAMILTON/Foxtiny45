@@ -11,9 +11,11 @@
 #include "debugging.h"
 #include "wdtSleep.h"
 
+#define DONTDEBUG 1
+
 void wakeup_uart() {
-	uint8_t buf[] = {65, 84, 13, 10};
-	sendUART(buf, 4);
+	uint8_t buf[] = {13, 13, 13};
+	sendUART(buf, 3);
 	sleep_delay_ms(2000);
 	clearUARTBuffer();
 }
@@ -24,35 +26,70 @@ int sleep_uart() {
 	char recv_buff[5];
 	int bytes = wait_get_line((uint8_t*)recv_buff, 5);
 	if (bytes == -1) {
+#ifndef DONTDEBUG
 		blink(6, 300);
+#endif
+		clearUARTBuffer();
 		return -1;
 	} else if (bytes == -2) {
+#ifndef DONTDEBUG
 		blink(5, 300);
 		debugSquareBuffer();
+#endif
+		clearUARTBuffer();
 		return -1;
 	}
 	if (bytes != 2) {
-		blink(4, 300);
-		sleep_delay_ms(2000);
-		blink(bytes, 300);
-		sleep_delay_ms(2000);
-		debugSquareBuffer();
-		return -1;
+		if (uartBufferIndex == 20 &&
+				ReverseByte(uartBuffer[0]) == 69 &&
+				ReverseByte(uartBuffer[1]) == 82) {
+			// received ERROR: parse error
+			// you can try to restart
+			clearUARTBuffer();
+			return -2;
+		} else {
+#ifndef DONTDEBUG
+			blink(4, 300);
+			sleep_delay_ms(2000);
+			blink(bytes, 300);
+			sleep_delay_ms(2000);
+			debugSquareBuffer();
+#endif
+			clearUARTBuffer();
+			return -1;
+		}
 	}
 	if (recv_buff[0] != 79) {
+#ifndef DONTDEBUG
 		blink(3, 300);
 		debugSquareBuffer();
+#endif
+		clearUARTBuffer();
 		return -1;
 	}
 	if (recv_buff[1] != 75) {
+#ifndef DONTDEBUG
 		blink(2, 300);
 		debugSquareBuffer();
+#endif
+		clearUARTBuffer();
 		return -1;
 	}
+#ifndef DONTDEBUG
 	blink(7, 300);
+#endif
 	sleep_delay_ms(2000);
 	clearUARTBuffer();
 	return 0;
+}
+
+void retry_sleep_uart() {
+	for (int i = 0; i < 3; ++i) {
+		if (sleep_uart() != -2) {
+			break;
+		}
+		blink(3, 100);
+	}
 }
 
 int main(void) {
@@ -70,12 +107,8 @@ int main(void) {
 	PORTB |= 1<<PB3;
 	/* uint8_t buff[UART_BUFFER_SIZE]; */
 	int last_send_counter_s = 0;
-	/* wakeup_uart(); */
-	/* sleep_delay_ms(2000); */
-	/* clearUARTBuffer(); */
-	/* sleep_uart(); */
-	/* sleep_delay_ms(2000); */
-	/* clearUARTBuffer(); */
+	wakeup_uart();
+	retry_sleep_uart();
 	for (;;) {
 		wdt_sleep();
 		last_send_counter_s += 4;
@@ -83,12 +116,12 @@ int main(void) {
 			last_send_counter_s = 0;
 			wakeup_uart();
 			send_internal_temp();
-			sleep_uart();
+			retry_sleep_uart();
 		}
 		if (!(PINB & 1<<PB1)) {
 			blink(2, 100);
 			wakeup_uart();
-			sleep_uart();
+			retry_sleep_uart();
 		}
 	}
 
