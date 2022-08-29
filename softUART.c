@@ -9,7 +9,8 @@
 #include "rxUART.h"
 #include "utilsUART.h"
 #include "debugging.h"
-#include "wdtSleep.h"
+#include "sleep.h"
+#include "adcTemp.h"
 
 #define DONTDEBUG 1
 
@@ -106,24 +107,17 @@ int main(void) {
 	int last_send_counter_s = 0;
 	wakeup_uart();
 	retry_sleep_uart();
+	init_adc();
 	for (;;) {
 		wdt_sleep();
-		uint8_t buff[32];
-		int s = uartBufferIndex;
-		for (int i = 0; i < s; ++i) {
-			buff[i] = ReverseByte(uartBuffer[i]);
+		
+		last_send_counter_s += 4;
+		if (last_send_counter_s >= 4) {
+			last_send_counter_s = 0;
+			wakeup_uart();
+			send_temps();
+			retry_sleep_uart();
 		}
-		buff[s] = '\r';
-		sendUART(buff, s+1);
-		clearUARTBuffer();
-		sleep_delay_ms(1000);
-		/* last_send_counter_s += 4; */
-		/* if (last_send_counter_s >= 1096) { */
-		/* 	last_send_counter_s = 0; */
-		/* 	wakeup_uart(); */
-		/* 	send_internal_temp(); */
-		/* 	retry_sleep_uart(); */
-		/* } */
 	}
 
 	return 0;

@@ -1,4 +1,4 @@
-#include "wdtSleep.h"
+#include "sleep.h"
 
 #include <avr/sleep.h>
 
@@ -37,6 +37,22 @@ void wdt_sleep() {
 	/* PRR &= ~(15); */
 	MCUCR = oldMCUCR;
 	DDRB = oldDDRB;
+}
+
+void adc_noise_reduc_sleep() {
+	uint8_t oldMCUCR = MCUCR;
+	set_sleep_mode(SLEEP_MODE_ADC);
+
+	MCUCR |=
+		1<<SM0 |
+		1<<BODS | 1<<BODSE;
+	MCUCR &=
+		~(1<<BODSE) &
+		~(1<<SM1);
+	
+	sleep_mode();
+
+	MCUCR = oldMCUCR;
 }
 
 // Mandatory
