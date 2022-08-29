@@ -21,7 +21,7 @@ void setupUART() {
 
 	// PCIE not INT0 because we want to get interrupt
 	// even when sleeping
-	// Enable interrupt on PB1 change
+	// Enable interrupt on PB0 change
 	PCMSK |= 1<<PCINT0;
 	GIMSK |= 1<<PCIE;
 	

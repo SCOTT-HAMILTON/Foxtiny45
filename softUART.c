@@ -95,34 +95,35 @@ void retry_sleep_uart() {
 int main(void) {
 	setupUART();
 	setup_watchdog(8);
-	// INPUT_PULLUP on DB1
-	DDRB &= ~(1<<DDB1);
-	PORTB |= 1 << PB1;
 	// OUTPUT PB4 Low
 	DDRB |= (1<<PB4);
 	PORTB &= ~(1<<PB4);
 
-	// OUTPUT PB3 HIGH
-	DDRB |= 1<<PB3;
-	PORTB |= 1<<PB3;
+	// OUTPUT PB1 HIGH
+	DDRB |= 1<<PB1;
+	PORTB |= 1<<PB1;
 	/* uint8_t buff[UART_BUFFER_SIZE]; */
 	int last_send_counter_s = 0;
 	wakeup_uart();
 	retry_sleep_uart();
 	for (;;) {
 		wdt_sleep();
-		last_send_counter_s += 4;
-		if (last_send_counter_s >= 1096) {
-			last_send_counter_s = 0;
-			wakeup_uart();
-			send_internal_temp();
-			retry_sleep_uart();
+		uint8_t buff[32];
+		int s = uartBufferIndex;
+		for (int i = 0; i < s; ++i) {
+			buff[i] = ReverseByte(uartBuffer[i]);
 		}
-		if (!(PINB & 1<<PB1)) {
-			blink(2, 100);
-			wakeup_uart();
-			retry_sleep_uart();
-		}
+		buff[s] = '\r';
+		sendUART(buff, s+1);
+		clearUARTBuffer();
+		sleep_delay_ms(1000);
+		/* last_send_counter_s += 4; */
+		/* if (last_send_counter_s >= 1096) { */
+		/* 	last_send_counter_s = 0; */
+		/* 	wakeup_uart(); */
+		/* 	send_internal_temp(); */
+		/* 	retry_sleep_uart(); */
+		/* } */
 	}
 
 	return 0;

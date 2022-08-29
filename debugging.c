@@ -79,9 +79,9 @@ void blink(uint8_t n, int delay) {
 }
 
 void wait_click() {
-	while (PINB & 1<<PB1);
-	sleep_delay_ms(1000);
-	while (!(PINB & 1<<PB1));
+	/* while (PINB & 1<<PB1); */
+	/* sleep_delay_ms(1000); */
+	/* while (!(PINB & 1<<PB1)); */
 }
 
 void debugSquareBuffer() {
@@ -117,7 +117,7 @@ void sendUART(uint8_t* data, unsigned int size) {
 	// Clear output compare interrupt flag
   TIFR |= 1 << OCF1A;
 
-	PORTB &= ~(1<<PB3);
+	PORTB &= ~(1<<PB1);
 	// Enable output compare interrupt
 	TIMSK |= 1<<OCIE1A;
 	sei();
@@ -126,7 +126,7 @@ void sendUART(uint8_t* data, unsigned int size) {
 		if (txUARTByteBit >= 9+TX_STOP_BITS) {
 			// Disable Timer/Counter1
 			TIMSK &= ~(1<<OCIE1A);
-			PORTB |= 1<<PB3;
+			PORTB |= 1<<PB1;
 			++txUARTByteIndex;
 			if (txUARTByteIndex >= txUARTDataSize) {
 				return;
@@ -135,7 +135,7 @@ void sendUART(uint8_t* data, unsigned int size) {
 				GTCCR |= 1<<PSR1;
 				TCNT1 = 0;
 				TIFR |= 1 << OCF1A;
-				PORTB &= ~(1<<PB3);
+				PORTB &= ~(1<<PB1);
 				TIMSK |= 1<<OCIE1A;
 				sei();
 			}
@@ -148,9 +148,9 @@ ISR (TIMER1_COMPA_vect) {
 		OCR1C = 104;
 		uint8_t byte = txUARTData[txUARTByteIndex];
 		if ((byte >> txUARTByteBit) & 1 || txUARTByteBit >= 8) {
-			PORTB |= 1<<PB3;
+			PORTB |= 1<<PB1;
 		} else {
-			PORTB &= ~(1<<PB3);
+			PORTB &= ~(1<<PB1);
 		}
 		++txUARTByteBit;
 	} else if (timer1Mode == SQUARE) {
