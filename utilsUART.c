@@ -69,25 +69,28 @@ int get_internal_temp() {
 }
 
 void send_temps() {
-	blink(3, 100);
+	blink(3, 200);
 	int tint = get_internal_temp();
 	int text = get_external_temp();
-	if (tint >= 200 && tint <= 400) {
-		char at_send[16] = "AT$SF=";
-		dec2hex(tint, at_send+6, 10, 8);
-		char b = at_send[11];
-		dec2hex(text, at_send+6, 7, 5);
-		at_send[11] = b;
-		at_send[14] = '\r';
-		sendUART((uint8_t*)at_send, 15);
-		char buff[5];
-		int bytes = wait_get_line((uint8_t*)buff, 5);
-		if (bytes == 2 && buff[0] == 0x4f && buff[1] == 0x4b) {
-			blink(4, 200);
-		} else {
-			blink(3, 200);
-		}
-		clearUARTBuffer();
+	if (tint < 200 || tint > 400) {
+		blink(5, 200);
 	} else if (tint == -1) {
+		tint = 0;
+		blink(4, 200);
 	}
+	char at_send[16] = "AT$SF=";
+	dec2hex(tint, at_send+6, 10, 8);
+	char b = at_send[11];
+	dec2hex(text, at_send+6, 7, 5);
+	at_send[11] = b;
+	at_send[14] = '\r';
+	sendUART((uint8_t*)at_send, 15);
+	char buff[5];
+	int bytes = wait_get_line((uint8_t*)buff, 5);
+	if (bytes == 2 && buff[0] == 0x4f && buff[1] == 0x4b) {
+		blink(3, 200);
+	} else {
+		blink(2, 200);
+	}
+	clearUARTBuffer();
 }

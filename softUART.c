@@ -108,11 +108,13 @@ int main(void) {
 	wakeup_uart();
 	retry_sleep_uart();
 	init_adc();
+	blink(3, 500);
 	for (;;) {
 		wdt_sleep();
+		blink(2, 11);
 		
-		last_send_counter_s += 4;
-		if (last_send_counter_s >= 4) {
+		last_send_counter_s += 1;
+		if (last_send_counter_s >= 276) {
 			last_send_counter_s = 0;
 			wakeup_uart();
 			send_temps();
