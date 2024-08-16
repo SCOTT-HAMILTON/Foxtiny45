@@ -56,9 +56,9 @@ int wait_get_line(uint8_t* buffer, int size) {
 }
 
 int get_internal_temp() {
-	uint8_t at_get_temp[] = {0x41, 0x54, 0x24, 0x54, 0x3f, 0xd};
+	uint8_t at_get_temp[] = {0x41, 0x54, 0x24, 0x54, 0x3f, 0xd, 10};
 	uint8_t buff[5];
-	sendUART(at_get_temp, 6);
+	sendUART(at_get_temp, 7);
 	wait_get_line(buff, 5);
 	clearUARTBuffer();
 	long t = strtol((const char*)buff, NULL, 10);
@@ -78,13 +78,14 @@ void send_temps() {
 		tint = 0;
 		blink(4, 200);
 	}
-	char at_send[16] = "AT$SF=";
+	char at_send[17] = "AT$SF=";
 	dec2hex(tint, at_send+6, 10, 8);
 	char b = at_send[11];
 	dec2hex(text, at_send+6, 7, 5);
 	at_send[11] = b;
 	at_send[14] = '\r';
-	sendUART((uint8_t*)at_send, 15);
+	at_send[15] = '\n';
+	sendUART((uint8_t*)at_send, 16);
 	char buff[5];
 	int bytes = wait_get_line((uint8_t*)buff, 5);
 	if (bytes == 2 && buff[0] == 0x4f && buff[1] == 0x4b) {

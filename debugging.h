@@ -15,4 +15,5 @@ void set_square(uint8_t us);
 void blink(uint8_t n, int delay);
 void wait_click();
 void debugSquareBuffer();
+void breakUART(unsigned int duration);
 void sendUART(uint8_t* data, unsigned int size);

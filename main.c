@@ -14,16 +14,9 @@
 
 #define DONTDEBUG 1
 
-void wakeup_uart() {
-	uint8_t buf[] = {13, 13, 13};
-	sendUART(buf, 3);
-	sleep_delay_ms(2000);
-	clearUARTBuffer();
-}
-
 int sleep_uart() {
-	uint8_t buf[] = {65, 84, 36, 80, 61, 49, 13};
-	sendUART(buf, 7);
+	uint8_t buf[] = {65, 84, 36, 80, 61, 49, 13, 10};
+	sendUART(buf, 8);
 	char recv_buff[5];
 	int bytes = wait_get_line((uint8_t*)recv_buff, 5);
 	if (bytes == -1) {
@@ -89,6 +82,7 @@ void retry_sleep_uart() {
 		if (sleep_uart() != -2) {
 			break;
 		}
+		breakUART(250);
 		blink(3, 100);
 	}
 }
@@ -105,10 +99,12 @@ int main(void) {
 	PORTB |= 1<<PB1;
 	/* uint8_t buff[UART_BUFFER_SIZE]; */
 	int last_send_counter_s = 0;
-	wakeup_uart();
-	retry_sleep_uart();
+	// to wakeup the BRKWS01 from sleep mode
 	init_adc();
 	blink(3, 500);
+	send_temps();
+	blink(3, 500);
+	retry_sleep_uart();
 	for (;;) {
 		wdt_sleep();
 		blink(2, 11);
@@ -116,7 +112,8 @@ int main(void) {
 		last_send_counter_s += 1;
 		if (last_send_counter_s >= 276) {
 			last_send_counter_s = 0;
-			wakeup_uart();
+			// to wakeup the BRKWS01 from sleep mode
+			breakUART(250);
 			send_temps();
 			retry_sleep_uart();
 		}

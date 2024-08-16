@@ -9,6 +9,11 @@ Attiny45-powered temperature sensor communicating with the Sigfox network. It is
 ## Requirements
  - RaspberryPi/Arduino/Attiny Programmer
  - A Sigfox account
+ - gcc-avr
+ - avr-libc
+ - avrdude
+ - make
+ - wiringPi (for gpio program)
 
 ## Help
 This is just a little project, but feel free to fork, change, extend or correct the code.

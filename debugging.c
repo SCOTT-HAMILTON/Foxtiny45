@@ -97,6 +97,12 @@ void debugSquareBuffer() {
 	blink(2, 200);
 }
 
+void breakUART(unsigned int duration) {
+	PORTB &= ~(1<<PB1);
+	sleep_delay_ms(duration);
+	PORTB |= 1<<PB1;
+}
+
 void sendUART(uint8_t* data, unsigned int size) {
 	timer1Mode = TX_UART;
 	txUARTByteIndex = 0;
@@ -129,6 +135,7 @@ void sendUART(uint8_t* data, unsigned int size) {
 			PORTB |= 1<<PB1;
 			++txUARTByteIndex;
 			if (txUARTByteIndex >= txUARTDataSize) {
+				PORTB |= 1<<PB1;
 				return;
 			} else {
 				txUARTByteBit = 0;
