@@ -2,7 +2,7 @@
 
 static char mdechex[17] = "0123456789ABCDEF";
 
-int dec2hex (unsigned int dec, char *hex, int len, int fill) {
+int dec2hex (unsigned int dec, char *hex, int fill) {
 	if (hex == NULL) {
     return -1;
 	}

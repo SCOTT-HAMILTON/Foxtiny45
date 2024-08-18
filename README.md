@@ -15,6 +15,12 @@ Attiny45-powered temperature sensor communicating with the Sigfox network. It is
  - make
  - wiringPi (for gpio program)
 
+## Pinout of the attiny45
+ - PB4 for the status led
+ - PB1 for UART TX (to BRKWS01 RX)
+ - PB0 for UART RX (to BRKWS01 TX)
+ - PB4 for battery voltage (reduced to 3.3v max with high impedance voltage dividor)
+
 ## Help
 This is just a little project, but feel free to fork, change, extend or correct the code.
 

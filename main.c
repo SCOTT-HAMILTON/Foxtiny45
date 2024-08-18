@@ -10,7 +10,7 @@
 #include "utilsUART.h"
 #include "debugging.h"
 #include "sleep.h"
-#include "adcTemp.h"
+#include "adc.h"
 
 #define DONTDEBUG 1
 
@@ -100,7 +100,6 @@ int main(void) {
 	/* uint8_t buff[UART_BUFFER_SIZE]; */
 	int last_send_counter_s = 0;
 	// to wakeup the BRKWS01 from sleep mode
-	init_adc();
 	blink(3, 500);
 	send_temps();
 	blink(3, 500);
@@ -110,7 +109,7 @@ int main(void) {
 		blink(2, 11);
 		
 		last_send_counter_s += 1;
-		if (last_send_counter_s >= 276) {
+		if (last_send_counter_s >= 275) {
 			last_send_counter_s = 0;
 			// to wakeup the BRKWS01 from sleep mode
 			breakUART(250);

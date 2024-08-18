@@ -2,7 +2,7 @@
 #include "rxUART.h"
 #include "debugging.h"
 #include "stringUtils.h"
-#include "adcTemp.h"
+#include "adc.h"
 
 #include <stdlib.h>
 #include <limits.h>
@@ -73,6 +73,8 @@ void send_temps() {
 	blink(3, 200);
 	int tint = get_internal_temp();
 	int text = get_external_temp();
+	uint16_t volt = get_batt_voltage();
+
 	if (tint < 200 || tint > 400) {
 		blink(5, 200);
 	} else if (tint == -1) {
@@ -80,12 +82,16 @@ void send_temps() {
 		blink(4, 200);
 	}
 	char at_send[17] = "AT$SF=";
-	dec2hex(tint, at_send+6, 10, 8);
+	dec2hex(tint, at_send + 6, 8);
 	char b = at_send[11];
-	dec2hex(text, at_send+6, 7, 5);
+	dec2hex(text, at_send + 6, 5);
 	at_send[11] = b;
+	b = at_send[8];
+	dec2hex(volt, at_send + 6, 2);
+	at_send[8] = b;
 	at_send[14] = '\r';
 	at_send[15] = '\n';
+	at_send[16] = '\0';
 	sendUART((uint8_t*)at_send, 16);
 	char buff[5];
 	int bytes = wait_get_line((uint8_t*)buff, 5);

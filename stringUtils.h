@@ -2,4 +2,4 @@
 
 #include <stdlib.h>
 
-int dec2hex (unsigned int dec, char *hex, int len, int fill);
+int dec2hex (unsigned int dec, char *hex, int fill);
