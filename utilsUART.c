@@ -38,6 +38,7 @@ int get_uart_line(uint8_t* data, int size) {
 }
 
 int wait_get_line(uint8_t* buffer, int size) {
+	clearUARTBuffer();
 	for (int i = 0; i < 2000; ++i) {
 		if (uartBufferIndex > 0)break;
     sleep_delay_ms(1);
