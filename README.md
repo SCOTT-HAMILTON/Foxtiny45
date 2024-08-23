@@ -29,6 +29,7 @@ For avrdude and wiringPi, you can follow instructions [here](https://www.instruc
 
 ## Preview
 ![Sigfox messages](https://github.com/user-attachments/assets/ffaff356-9263-4c5c-9da6-ca9d5f861cb5)
+![fox-show-temps plot](https://github.com/user-attachments/assets/e36b243f-9abf-4b3d-974b-0ee2aa1aae35)
 
 ## Payload
 The payload sent to sigfox is XXYYYZZZ in HEX with,
